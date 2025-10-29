@@ -124,7 +124,7 @@ object SudokuConcurrent{
     //       else solve(mkPartial(fname))
 
     // just going to solve all the files (except impossible) for now 
-    for(f <- allPossibleFiles){
+    for(f <- allFiles){
       println(f)
       initialise_stack(mkPartial(f))
       ThreadUtil.runSystem(n_workers, solve())
