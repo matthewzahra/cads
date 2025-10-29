@@ -1,0 +1,27 @@
+{
+  "name": "scala",
+  "argv": [
+    "/home/matthewzahra/.sdkman/candidates/scala/3.7.3/libexec/scala-cli",
+    "--cli-default-scala-version",
+    "3.7.3",
+    "--repository",
+    "file:///home/matthewzahra/.sdkman/candidates/scala/current/maven2",
+    "--prog-name",
+    "scala",
+    "--skip-cli-updates",
+    "bsp",
+    "--json-options",
+    "/home/matthewzahra/coding/scala/src/main/scala/.scala-build/ide-options-v2.json",
+    "--json-launcher-options",
+    "/home/matthewzahra/coding/scala/src/main/scala/.scala-build/ide-launcher-options.json",
+    "--envs-file",
+    "/home/matthewzahra/coding/scala/src/main/scala/.scala-build/ide-envs.json",
+    "/home/matthewzahra/coding/scala/src/main/scala/test.scala"
+  ],
+  "version": "1.9.0",
+  "bspVersion": "2.1.1",
+  "languages": [
+    "scala",
+    "java"
+  ]
+}
