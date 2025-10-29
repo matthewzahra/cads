@@ -33,14 +33,15 @@ object SudokuConcurrent{
 
   // Stack to store partial solutions that we might back-track to.
   // global to each object so all threads can access it 
-	var actual_stack = new LockFreeStackPool[Partial]
+  var actual_stack = new LockFreeStackPool[Partial]
   var stack = new TerminationDetectingPool(actual_stack, n_workers)
-
   var done = new AtomicBoolean(false) // going to be shared by all threads - will signal when we are actually done 
+
+
 
   // initialise the stack with a partial
   def initialise_stack(init: Partial) : Unit = {
-    stack.push(init)
+    stack.add(init)
   }
 
   // reset the stack and done for a new solve attempt
@@ -53,14 +54,16 @@ object SudokuConcurrent{
   /** Solve the puzzle defined by init */
   def solve(): Unit = {
     while(!done.get()){
-      val stack_result = stack.pop
+      val stack_result = stack.get
 
       stack_result match
-        case None => () // stack is empty so we terminate
+        case None => return // stack is empty so we terminate
         case Some(partial) =>
           if(partial.complete){  // done!
-              partial.printPartial // TODO - make sure only 1 thread prints this 
-              done.set(true)
+            if(!done.getAndSet(true)){
+              partial.printPartial 	// TODO - make sure only 1 thread prints this 
+              stack.signalDone 			// tell all the threads on the queue to terminate 
+            }
           }
           else{
               // Choose position to play
@@ -68,7 +71,7 @@ object SudokuConcurrent{
               // Consider all values to play there
               for(d <- 1 to 9)
               if(partial.canPlay(i,j,d)){
-                  val p1 = partial.play(i,j,d); stack.push(p1)
+                  val p1 = partial.play(i,j,d); stack.add(p1)
               }
           }
     } // end of while
