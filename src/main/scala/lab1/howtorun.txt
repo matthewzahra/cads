@@ -1,0 +1,2 @@
+scalac -classpath ".:/home/matthewzahra/coding/cads/lib2" ConcurrentSieve.scala
+scala -classpath ".:/home/matthewzahra/coding/cads/lib2" ConcurrentSieve 100000

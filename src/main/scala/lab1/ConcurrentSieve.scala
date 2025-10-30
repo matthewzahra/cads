@@ -4,7 +4,7 @@ import java.util.concurrent.atomic.AtomicIntegerArray
 import java.util.concurrent.atomic.AtomicInteger
 import ox.cads.util.ThreadUtil
 
-object ConcurentSieve{
+object ConcurrentSieve{
 
 	def main(args: Array[String]) = {
 		assert(args.length == 1, "must have one argument")
@@ -46,7 +46,7 @@ object ConcurentSieve{
 				if(p*p > n || p==0){ // n is prime
 					// need to try and slot it into the primes array
 					// iterate through the array until we either enocunter a 0 (we are at the end) or a number that is larger (it is in the wrong place)
-					var i = 0
+					// NOTE: we start from i found above 
 					while(i<N){
 						// just set it if we are at the end 
 						if(primes.compareAndSet(i,0,n)){
