@@ -25,64 +25,65 @@ object ConcurentSieve{
 		def worker(id: Int) = {
 			while(primesFound.get < N){
 				// get the next number to check if it is prime and record it in current
-				var n = next.getAndIncrement()
-				println(n.toString)
-				current.set(id, n)	
+				current.set(id, next.getAndIncrement())
+				var n = current.get(id)
 
 				// first we need to check if any of the other threads are working on any numbers that we care about 
 				for (i <- 0 to nWorkers - 1){
-					while (current.get(i) != 0 && current.get(i)*current.get(i) <= n){
+					var threadCandidate: Long = current.get(i) 
+					while (threadCandidate != 0 && threadCandidate*threadCandidate <= n){
+						threadCandidate = current.get(i)
 						() // spin 
 					}
 				}
 
 				// test if n is prime 
-				var i = 0; var p = primes.get(i)
-				while(p*p<=n && n%p != 0){ 
+				var i = 0; var p: Long = primes.get(i)
+				while(p != 0 && p*p<=n && n%p != 0){ 
 					i += 1
 					p = primes.get(i)
 				}
-				if(p*p > n){ // n is prime
+				if(p*p > n || p==0){ // n is prime
 					// need to try and slot it into the primes array
 					// iterate through the array until we either enocunter a 0 (we are at the end) or a number that is larger (it is in the wrong place)
 					var i = 0
 					while(i<N){
-						if(primes.get(i) == 0){ // at the end, so just slot in and move on with our lives
-							primes.set(i, n)
-							primesFound.incrementAndGet() // TODO - is this allowed?
-							i = N
+						// just set it if we are at the end 
+						if(primes.compareAndSet(i,0,n)){
+							primesFound.incrementAndGet()
+							i=N
 						}
-
-						else if(primes.get(i) > n){ // need to move numbers around
-							// set number that is too large with n, put n where it is and put new number in current 
-							var tooLarge = primes.get(i)
-							primes.set(i,n)
-							n = tooLarge
-							current.set(id, n)
-						}
-
-						else{ // just increment counter
-							i+=1
+						else{
+							var num = primes.get(i)
+							// if num is too large, we should try and replace it with n and then continue
+							if (num > n){
+								var done = false // use this to keep trying
+								while(!done){
+									if (primes.compareAndSet(i,num,n)){ // successfully slotted n in
+										current.set(id, num)
+										n = num 
+										done = true
+									}
+									else{
+										num = primes.get(i) // if statement failed, another thread beat us to it so we need the new value to shift up 
+									}
+								}
+							}
+							else{ // number smaller than n, so just continue
+								i += 1
+							}
 						}
 					}
-
-					// NEED to clear our entry in current 
-					current.set(id, 0)
 				}
+				// NEED to clear our entry in current 
+				current.set(id, 0)
 			}
 		}
 
 
-		ThreadUtil.runIndexedSystem(nWorkers, worker)
+		ThreadUtil.runIndexedSystem(nWorkers, worker) // spawn threads
 		
-		println(primes.toString)
+		println(primes.get(N-1))
     println("Time taken: "+(java.lang.System.currentTimeMillis()-t0))
 	}
-
-
-
 }
-
-// to maintain order of primes, when we have found a prime we need to find where t oslot it in, and swap with something in wrong place
-// this is fine as we are only moving larger values around, and thus no thread will need them at the time
-// ensure that any values we take out are then stored in current 
