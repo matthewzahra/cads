@@ -1,6 +1,6 @@
-*.class
+# *.class
 *.log
-*.tasty
+# *.tasty
 .scala-build/
 .bsp/
 
