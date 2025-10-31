@@ -97,5 +97,5 @@ object ConcurrentSieve{
 }
 
 
-// seems that the number 3 is never looking at 5 when 5 gets inserted first, and then we are not swapping them
-// infact, 3 and 5 are NEVER getting compared
+// TODO - see how we get nums = primes.get(i) - we do this a lot... 
+// also can the CAS On line 70 be improved via short circuiting?
