@@ -43,7 +43,6 @@ object ConcurrentSieve{
 					p = primes.get(i)
 				}
 
-				// TODO - seems some random non-primes are getting through this 
 				if(p*p > n || p==0){ // n is prime 
 
 					// need to try and slot it into the primes array
@@ -52,17 +51,14 @@ object ConcurrentSieve{
 					while(i<N){
 						// just set it if we are at the end '
 						var num = primes.get(i)
-
-						// case where num == 0 but the CAS fails - i.e. something has been written in there already
-						// here, what we need to do is to get that number...
-
 						if(num == 0 && primes.compareAndSet(i,0,n)){ // now we are inserting in the wrong place...
 							primesFound.incrementAndGet()
 							i=N
 						}
 						else{
-
-							num = primes.get(i) // need to get it again incase the above failed due to something getting written in
+							if (num == 0){
+								num = primes.get(i) // need to get it again as the above CAS failed due to something getting written in
+							}
 							// if num is too large, we should try and replace it with n and then continue
 							if (num > n){
 								var done = false // use this to keep trying
@@ -87,15 +83,9 @@ object ConcurrentSieve{
 				current.set(id, 0)
 			}
 		}
-
-
 		ThreadUtil.runIndexedSystem(nWorkers, worker) // spawn threads
 		
 		println(primes.get(N-1))
     println("Time taken: "+(java.lang.System.currentTimeMillis()-t0))
 	}
 }
-
-
-// TODO - see how we get nums = primes.get(i) - we do this a lot... 
-// also can the CAS On line 70 be improved via short circuiting?
