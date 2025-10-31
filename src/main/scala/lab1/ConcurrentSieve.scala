@@ -12,11 +12,10 @@ object ConcurrentSieve{
 
     val N = args(0).toInt // number of primes required
     val primes = new AtomicIntegerArray(N) // will hold the primes
-    primes.set(0,2)
-    var nextSlot = 1 // next free slot in primes
+    primes.set(0,2) // set first prime 
     var next = new AtomicInteger(3) // next candidate prime to consider
 
-		val nWorkers = 4 // define the number of worker threads
+		val nWorkers = 10 // define the number of worker threads
 		val current = new AtomicIntegerArray(nWorkers)	// stores the numbers that each thread is currently working on - NOTE: values of 0 will be interpreted as that thread not working on any value
 
 		var primesFound = new AtomicInteger(1) // counts how many prime numbers we have found 
@@ -43,18 +42,27 @@ object ConcurrentSieve{
 					i += 1
 					p = primes.get(i)
 				}
-				if(p*p > n || p==0){ // n is prime
+
+				// TODO - seems some random non-primes are getting through this 
+				if(p*p > n || p==0){ // n is prime 
+
 					// need to try and slot it into the primes array
 					// iterate through the array until we either enocunter a 0 (we are at the end) or a number that is larger (it is in the wrong place)
 					// NOTE: we start from i found above 
 					while(i<N){
-						// just set it if we are at the end 
-						if(primes.compareAndSet(i,0,n)){
+						// just set it if we are at the end '
+						var num = primes.get(i)
+
+						// case where num == 0 but the CAS fails - i.e. something has been written in there already
+						// here, what we need to do is to get that number...
+
+						if(num == 0 && primes.compareAndSet(i,0,n)){ // now we are inserting in the wrong place...
 							primesFound.incrementAndGet()
 							i=N
 						}
 						else{
-							var num = primes.get(i)
+
+							num = primes.get(i) // need to get it again incase the above failed due to something getting written in
 							// if num is too large, we should try and replace it with n and then continue
 							if (num > n){
 								var done = false // use this to keep trying
@@ -87,3 +95,7 @@ object ConcurrentSieve{
     println("Time taken: "+(java.lang.System.currentTimeMillis()-t0))
 	}
 }
+
+
+// seems that the number 3 is never looking at 5 when 5 gets inserted first, and then we are not swapping them
+// infact, 3 and 5 are NEVER getting compared
