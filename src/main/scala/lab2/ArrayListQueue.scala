@@ -8,8 +8,8 @@ class ArrayListQueue[T: ClassTag] extends ox.cads.collection.Queue[T]{
 	private class Node{
 		val data: Array[T] = new Array[T](size)
 		var next: Option[Node] = None 
-		var head: Int = 0
-		var tail: Int = 0
+		@volatile var head: Int = 0
+		@volatile var tail: Int = 0
 	}
 
 	val enqLock = Lock()
@@ -45,25 +45,8 @@ class ArrayListQueue[T: ClassTag] extends ox.cads.collection.Queue[T]{
 					head = node
 				}
 			}
-			
 		}
-
-		if (node.head == 0){ // node is empty
-			if (node == tail){
-				return None
-			} // whole list is empty
-			
-			// get next node 
-			node.next match{
-				case None => throw new Exception("oh no...")
-				case Some(n) =>{
-					node = n
-					head = node
-				}
-			}
-	
-		}
-
+		
 		var item = node.data(node.head)
 		node.head += 1
 
