@@ -35,7 +35,7 @@ object SimpleQueueTest{
   }
 
   // List of queues
-  val queues0 = List("lockFree", "recycle", "unbounded", "concurrent") 
+  val queues0 = List("lockFree", "recycle", "unbounded", "concurrent", "concurrentLockFree") 
   val queues = queues0.map("--" + _)
 
   val usage = 
@@ -71,6 +71,7 @@ object SimpleQueueTest{
         case "recycle" => new ox.cads.collection.LockFreeQueueRecycle[Int](p)
         case "unbounded" => new ox.cads.collection.UnboundedQueue[Int]
 		case "concurrent" => new ArrayListQueue[Int]
+		case "concurrentLockFree" => new LFArrayListQueue[Int]
       }
 
       // Create and run the tester object

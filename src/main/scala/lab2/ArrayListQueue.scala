@@ -16,7 +16,7 @@ class ArrayListQueue[T: ClassTag] extends ox.cads.collection.Queue[T]{
 	val deqLock = Lock()
 
 	private var head = new Node() // dummy header
-	private var tail = head // last Node in listj
+	private var tail = head // last Node in list
 
 
 	def enqueue(x: T) = enqLock.mutex{
@@ -46,7 +46,7 @@ class ArrayListQueue[T: ClassTag] extends ox.cads.collection.Queue[T]{
 				}
 			}
 		}
-		
+
 		var item = node.data(node.head)
 		node.head += 1
 
